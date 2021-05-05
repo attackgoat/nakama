@@ -21,15 +21,21 @@ macro_rules! nakama {
                 &nakama::Initializer,
             ) -> Result<(), usize>,
         {
-            let ctx = nakama::Context {};
-            let mut logger = nakama::Logger {};
+            let ctx: nakama::Context = ctx.into();
+            let mut logger: nakama::Logger = logger.into();
             let db = nakama::Db {};
-            let nk = nakama::Nakama {};
+            let nk: nakama::Nakama = nk.into();
             let initializer = nakama::Initializer {};
             f(&ctx, &mut logger, &db, &nk, &initializer)
         }
 
-        fn rs_new_match<F>(f: F) -> nakama::Init
+        fn rs_new_match<F>(
+            f: F,
+            ctx: &nakama::sys::NkContext,
+            logger: &nakama::sys::NkLogger,
+            db: &nakama::sys::NkDb,
+            nk: &nakama::sys::NkModule,
+        ) -> nakama::Init
         where
             F: Fn(
                 &nakama::Context,
@@ -39,17 +45,22 @@ macro_rules! nakama {
                 &std::collections::HashMap<String, Box<dyn std::any::Any>>,
             ) -> nakama::Init,
         {
-            let ctx = nakama::Context {};
-            let mut logger = nakama::Logger {};
+            let ctx: nakama::Context = ctx.into();
+            let mut logger: nakama::Logger = logger.into();
             let db = nakama::Db {};
-            let nk = nakama::Nakama {};
+            let nk: nakama::Nakama = nk.into();
             let params = std::collections::HashMap::new();
             f(&ctx, &mut logger, &db, &nk, &params)
         }
 
         #[no_mangle]
-        pub extern "C" fn nk_init_match(x: i64) -> i64 {
-            let _ = rs_new_match($new_match);
+        pub extern "C" fn nk_init_match(
+            ctx: nakama::sys::NkContext,
+            logger: nakama::sys::NkLogger,
+            db: nakama::sys::NkDb,
+            nk: nakama::sys::NkModule,
+        ) -> i64 {
+            let _ = rs_new_match($new_match, &ctx, &logger, &db, &nk);
 
             1234
         }

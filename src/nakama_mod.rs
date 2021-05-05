@@ -1,4 +1,20 @@
-pub struct NakamaModule {}
+use {
+    super::{
+        sys::{str_as_nk_string, NkModule},
+        Context,
+    },
+    std::{ffi::CStr, mem::MaybeUninit},
+};
+
+pub struct Authentication {
+    pub created: bool,
+    pub user_id: String,
+    pub user_name: String,
+}
+
+pub type AuthenticateResult = Result<Authentication, String>;
+
+pub struct NakamaModule(NkModule);
 
 impl NakamaModule {
     /// Not implemented
@@ -14,9 +30,64 @@ impl NakamaModule {
     }
 
     /// Not implemented
-    pub fn authenticate_device(&self) {
-        // ctx context.Context, id, username string, create bool) (string, string, bool, error)
-        todo!();
+    pub fn authenticate_device<S1, S2>(
+        &self,
+        ctx: &Context,
+        user_id: S1,
+        user_name: S2,
+        create: bool,
+    ) -> AuthenticateResult
+    where
+        S1: AsRef<str>,
+        S2: AsRef<str>,
+    {
+        let mut out_user_id = MaybeUninit::uninit();
+        let out_user_id_ptr = out_user_id.as_mut_ptr();
+
+        let mut out_username = MaybeUninit::uninit();
+        let out_username_ptr = out_username.as_mut_ptr();
+
+        let mut out_err = MaybeUninit::uninit();
+        let out_err_ptr = out_err.as_mut_ptr();
+
+        let mut out_created = MaybeUninit::uninit();
+        let out_created_ptr = out_created.as_mut_ptr();
+
+        let res = unsafe {
+            self.0.authenticatedevice.unwrap()(
+                self.0.ptr,
+                ctx.as_ptr(),
+                str_as_nk_string(user_id),
+                str_as_nk_string(user_name),
+                create,
+                out_user_id_ptr,
+                out_username_ptr,
+                out_err_ptr,
+                out_created_ptr,
+            )
+        };
+
+        if res == 0 {
+            Ok(Authentication {
+                created: unsafe { *out_created.assume_init() },
+                user_id: unsafe {
+                    CStr::from_ptr(*out_user_id_ptr)
+                        .to_str()
+                        .unwrap()
+                        .to_owned()
+                }
+                .clone(),
+                user_name: unsafe {
+                    CStr::from_ptr(*out_username_ptr)
+                        .to_str()
+                        .unwrap()
+                        .to_owned()
+                }
+                .clone(),
+            })
+        } else {
+            Err(unsafe { CStr::from_ptr(*out_err_ptr).to_str().unwrap().to_owned() }.clone())
+        }
     }
 
     /// Not implemented
@@ -545,5 +616,11 @@ impl NakamaModule {
     pub fn wallet_ledger_list(&self) {
         // ctx context.Context, userID string, limit int, cursor string) ([]WalletLedgerItem, string, error)
         todo!();
+    }
+}
+
+impl From<&NkModule> for NakamaModule {
+    fn from(nk: &NkModule) -> Self {
+        Self(nk.clone())
     }
 }

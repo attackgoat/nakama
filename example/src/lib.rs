@@ -16,8 +16,12 @@ fn init(
     nk: &Nakama,
     initializer: &Initializer,
 ) -> Result<(), usize> {
+    // Get something from the context and log it
     let exe_mode = ctx.value("execution_mode");
+    logger.info(format!("🦀: Execution mode {}", &exe_mode));
 
+    // Initialize some RPC calls
+    //initializer.
 
     Ok(())
 }

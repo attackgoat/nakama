@@ -1,5 +1,3 @@
 pub struct Dispatcher {}
 
-impl Dispatcher {
-    
-}
+impl Dispatcher {}

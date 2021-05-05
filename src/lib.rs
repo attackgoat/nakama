@@ -1,5 +1,8 @@
 pub mod prelude {
-    pub use super::{nakama, Context, Initializer, Init, Db, Dispatcher, State, Logger,Join, Match, Nakama, Presence, Data};
+    pub use super::{
+        nakama, Context, Data, Db, Dispatcher, Init, Initializer, Join, Logger, Match, Nakama,
+        Presence, State,
+    };
 }
 
 pub mod sys {
@@ -18,11 +21,16 @@ mod presence;
 mod state;
 
 pub use self::{
+    context::Context,
     data::Data,
-    context::Context, db::Db, dispatch::Dispatcher, logger::Logger,
-    macros::{Init},
+    db::Db,
+    dispatch::Dispatcher,
     init::Initializer,
-    nakama_mod::NakamaModule as Nakama, presence::Presence, state::{Match, State, Join},
+    logger::Logger,
+    macros::Init,
+    nakama_mod::NakamaModule as Nakama,
+    presence::Presence,
+    state::{Join, Match, State},
 };
 
 //use nakama_sys::*;
