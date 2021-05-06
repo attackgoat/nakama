@@ -40,8 +40,8 @@ impl Context {
         };
 
         if res == 0 {
-            let out_value_ptr = *out_value.as_ptr();
-            let out_value_cstr = unsafe { CStr::from_ptr(out_value_ptr) };
+            let out_value_ptr = out_value.as_ptr();
+            let out_value_cstr = unsafe { CStr::from_ptr(*out_value_ptr) };
 
             Some(out_value_cstr.to_str().unwrap().to_owned())
         } else {
