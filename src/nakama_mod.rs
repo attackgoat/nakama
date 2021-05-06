@@ -9,7 +9,7 @@ use {
 pub struct Authentication {
     pub created: bool,
     pub user_id: String,
-    pub user_name: String,
+    pub username: String,
 }
 
 pub type AuthenticateResult = Result<Authentication, String>;
@@ -42,51 +42,53 @@ impl NakamaModule {
         S2: AsRef<str>,
     {
         let mut out_user_id = MaybeUninit::uninit();
-        let out_user_id_ptr = out_user_id.as_mut_ptr();
-
         let mut out_username = MaybeUninit::uninit();
-        let out_username_ptr = out_username.as_mut_ptr();
-
         let mut out_err = MaybeUninit::uninit();
-        let out_err_ptr = out_err.as_mut_ptr();
-
         let mut out_created = MaybeUninit::uninit();
-        let out_created_ptr = out_created.as_mut_ptr();
 
         let res = unsafe {
             self.0.authenticatedevice.unwrap()(
                 self.0.ptr,
                 ctx.as_ptr(),
-                str_as_nk_string(user_id),
-                str_as_nk_string(user_name),
+                str_as_nk_string(user_id.as_ref()),
+                str_as_nk_string(user_name.as_ref()),
                 create,
-                out_user_id_ptr,
-                out_username_ptr,
-                out_err_ptr,
-                out_created_ptr,
+                out_user_id.as_mut_ptr(),
+                out_username.as_mut_ptr(),
+                out_err.as_mut_ptr(),
+                out_created.as_mut_ptr(),
             )
         };
 
         if res == 0 {
+            let (created, user_id, username) = unsafe {
+                let created = *out_created.assume_init();
+                let user_id = CStr::from_ptr(*out_user_id.as_ptr())
+                    .to_str()
+                    .unwrap()
+                    .to_owned();
+                let username = CStr::from_ptr(*out_username.as_ptr())
+                    .to_str()
+                    .unwrap()
+                    .to_owned();
+
+                (created, user_id, username)
+            };
+
             Ok(Authentication {
-                created: unsafe { *out_created.assume_init() },
-                user_id: unsafe {
-                    CStr::from_ptr(*out_user_id_ptr)
-                        .to_str()
-                        .unwrap()
-                        .to_owned()
-                }
-                .clone(),
-                user_name: unsafe {
-                    CStr::from_ptr(*out_username_ptr)
-                        .to_str()
-                        .unwrap()
-                        .to_owned()
-                }
-                .clone(),
+                created,
+                user_id,
+                username,
             })
         } else {
-            Err(unsafe { CStr::from_ptr(*out_err_ptr).to_str().unwrap().to_owned() }.clone())
+            let err = unsafe {
+                CStr::from_ptr(*out_err.as_ptr())
+                    .to_str()
+                    .unwrap()
+                    .to_owned()
+            };
+
+            Err(err)
         }
     }
 
@@ -621,6 +623,6 @@ impl NakamaModule {
 
 impl From<&NkModule> for NakamaModule {
     fn from(nk: &NkModule) -> Self {
-        Self(nk.clone())
+        Self(*nk)
     }
 }

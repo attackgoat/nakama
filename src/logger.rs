@@ -6,23 +6,31 @@ use {
 pub struct Logger(NkLogger);
 
 impl Logger {
-    /// Log a message with optional arguments at DEBUG level. Arguments are handled in the manner of fmt.Printf.
+    /// Log a message at DEBUG level.
     pub fn debug<S>(&mut self, s: S)
     where
         S: AsRef<str>,
     {
+        let str_s = s.as_ref();
+        let nk_s = str_as_nk_string(str_s);
+        let debug = self.0.debug.unwrap();
+
         unsafe {
-            self.0.debug.unwrap()(self.0.ptr, str_as_nk_string(s));
+            debug(self.0.ptr, nk_s);
         }
     }
 
-    /// Log a message with optional arguments at ERROR level. Arguments are handled in the manner of fmt.Printf.
+    /// Log a message at ERROR level.
     pub fn error<S>(&mut self, s: S)
     where
         S: AsRef<str>,
     {
+        let str_s = s.as_ref();
+        let nk_s = str_as_nk_string(str_s);
+        let error = self.0.error.unwrap();
+
         unsafe {
-            self.0.error.unwrap()(self.0.ptr, str_as_nk_string(s));
+            error(self.0.ptr, nk_s);
         }
     }
 
@@ -31,23 +39,31 @@ impl Logger {
         todo!();
     }
 
-    /// Log a message with optional arguments at INFO level. Arguments are handled in the manner of fmt.Printf.
+    /// Log a message at INFO level.
     pub fn info<S>(&mut self, s: S)
     where
         S: AsRef<str>,
     {
+        let str_s = s.as_ref();
+        let nk_s = str_as_nk_string(str_s);
+        let info = self.0.info.unwrap();
+
         unsafe {
-            self.0.info.unwrap()(self.0.ptr, str_as_nk_string(s));
+            info(self.0.ptr, nk_s);
         }
     }
 
-    /// Log a message with optional arguments at WARN level. Arguments are handled in the manner of fmt.Printf.
+    /// Log a message at WARN level.
     pub fn warn<S>(&mut self, s: S)
     where
         S: AsRef<str>,
     {
+        let str_s = s.as_ref();
+        let nk_s = str_as_nk_string(str_s);
+        let warn = self.0.warn.unwrap();
+
         unsafe {
-            self.0.warn.unwrap()(self.0.ptr, str_as_nk_string(s));
+            warn(self.0.ptr, nk_s);
         }
     }
     /// Return a logger with the specified field set so that they are included in subsequent logging calls.
@@ -71,6 +87,6 @@ impl Logger {
 
 impl From<&NkLogger> for Logger {
     fn from(logger: &NkLogger) -> Self {
-        Self(logger.clone())
+        Self(*logger)
     }
 }

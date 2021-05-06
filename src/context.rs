@@ -24,24 +24,34 @@ impl Context {
     // Context.Value. A key can be any type that supports equality;
     // packages should define keys as an unexported type to avoid
     // collisions.
-    pub fn value<K>(&self, key: K) -> String
+    pub fn value<K>(&self, key: K) -> Option<String>
     where
         K: AsRef<str>,
     {
         let mut out_value = MaybeUninit::uninit();
-        let out_value_ptr = out_value.as_mut_ptr();
+        let key_str = key.as_ref();
+        let key_nk_string = str_as_nk_string(key_str);
+        let value = self.0.value.unwrap();
 
-        unsafe {
-            self.0.value.unwrap()(self.0.ptr, str_as_nk_string(key), out_value_ptr);
+        let res = {
+            let out_value_ptr = out_value.as_mut_ptr();
 
-            CStr::from_ptr(*out_value_ptr).to_str().unwrap().to_owned()
+            unsafe { value(self.0.ptr, key_nk_string, out_value_ptr) }
+        };
+
+        if res == 0 {
+            let out_value_ptr = *out_value.as_ptr();
+            let out_value_cstr = unsafe { CStr::from_ptr(out_value_ptr) };
+
+            Some(out_value_cstr.to_str().unwrap().to_owned())
+        } else {
+            None
         }
-        .clone()
     }
 }
 
 impl From<&NkContext> for Context {
     fn from(ctx: &NkContext) -> Self {
-        Self(ctx.clone())
+        Self(*ctx)
     }
 }

@@ -16,9 +16,11 @@ fn init(
     nk: &Nakama,
     initializer: &Initializer,
 ) -> Result<(), usize> {
-    // Get something from the context and log it
+    // Get something from the context and try to log it
     let exe_mode = ctx.value("execution_mode");
-    logger.info(format!("🦀: Execution mode {}", &exe_mode));
+    if let Some(exe_mode) = exe_mode {
+        logger.info(format!("🦀: Execution mode {}", &exe_mode));
+    }
 
     // Initialize some RPC calls
     //initializer.
@@ -81,7 +83,7 @@ impl Match for MyMatch {
         tick: u64,
         presences: &[Presence],
     ) -> State {
-        // TODO: add each Presence in `presences` from our state (usually stored in a vec)
+        // TODO: add each Presence in `presences` to our state (usually stored in a vec)
 
         Some(self)
     }
@@ -96,7 +98,7 @@ impl Match for MyMatch {
         tick: u64,
         presences: &[Presence],
     ) -> State {
-        // TODO: remove each Presence in `presences` from our state (usually stored in a vec)
+        // TODO: remove each Presence in `presences` from our state
 
         Some(self)
     }

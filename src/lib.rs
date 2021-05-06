@@ -32,22 +32,3 @@ pub use self::{
     presence::Presence,
     state::{Join, Match, State},
 };
-
-//use nakama_sys::*;
-
-// fn hello_world(v1: i64, v2: i64, s: String) -> i64 {
-//     let go_s = _GoString_ {
-//         p: s.as_ptr() as *const _,
-//         n: s.len() as _,
-//     };
-
-//     unsafe { nakama_sys::HelloWorld(v1, v2, go_s) }
-// }
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
-    }
-}
