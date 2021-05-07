@@ -1,7 +1,7 @@
 pub mod prelude {
     pub use super::{
-        nakama, Context, Data, Db, Dispatcher, Init, Initializer, Join, Logger, Match, Nakama,
-        Presence, State,
+        nakama, Context, Data, Db, Dispatcher, Init, Initializer, Join, Logger, Match,
+        NakamaModule, Presence, State,
     };
 }
 
@@ -28,7 +28,7 @@ pub use self::{
     init::Initializer,
     logger::Logger,
     macros::Init,
-    nakama_mod::NakamaModule as Nakama,
+    nakama_mod::NakamaModule,
     presence::Presence,
     state::{Join, Match, State},
 };

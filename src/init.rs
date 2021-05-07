@@ -1,6 +1,27 @@
-pub struct Initializer {}
+use {super::{sys::{str_as_nk_string,NkInitializer}, Context, Db, NakamaModule, Logger}, std::mem::MaybeUninit};
+
+pub struct Initializer(NkInitializer);
 
 impl Initializer {
+    // pub fn register_rpc(&self, id: String, f: extern "C" fn(&Context, &Logger, &Db, &NakamaModule, )) -> Result<(), String>
+    // {
+    //     let mut out_err = MaybeUninit::uninit();
+
+    //     let res = {
+    //         let id_str = id.as_ref();
+    //         let id_nk_string = str_as_nk_string(id_str);
+    //         let out_err_ptr = out_err.as_mut_ptr();
+
+    //         let register_rpc = self.0.registerrpc.unwrap();
+
+    //         unsafe {
+    //             register_rpc(self.0.ptr, id_nk_string, Some(f), out_err_ptr)
+    //         }
+    //     };
+
+    //     Ok(())
+    // }
+
     // RegisterRpc(id string, fn func(ctx context.Context, logger Logger, db *sql.DB, nk NakamaModule, payload string) (string, error)) error
     // RegisterBeforeRt(id string, fn func(ctx context.Context, logger Logger, db *sql.DB, nk NakamaModule, envelope *rtapi.Envelope) (*rtapi.Envelope, error)) error
     // RegisterAfterRt(id string, fn func(ctx context.Context, logger Logger, db *sql.DB, nk NakamaModule, envelope *rtapi.Envelope) error) error
@@ -144,4 +165,10 @@ impl Initializer {
     // RegisterEvent(fn func(ctx context.Context, logger Logger, evt *api.Event)) error
     // RegisterEventSessionStart(fn func(ctx context.Context, logger Logger, evt *api.Event)) error
     // RegisterEventSessionEnd(fn func(ctx context.Context, logger Logger, evt *api.Event)) error
+}
+
+impl From<&NkInitializer> for Initializer {
+    fn from(initializer: &NkInitializer) -> Self {
+        Self(*initializer)
+    }
 }
