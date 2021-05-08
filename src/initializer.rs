@@ -1,26 +1,48 @@
-use {super::{sys::{str_as_nk_string,NkInitializer}, Context, Db, NakamaModule, Logger}, std::mem::MaybeUninit};
+use {
+    super::{
+        sys::{str_as_nk_string, NkContext, NkDb, NkInitializer, NkLogger, NkModule, NkString},
+        Context, Db, Logger, NakamaModule,
+    },
+    std::{
+        ffi::CStr,
+        mem::MaybeUninit,
+        os::raw::{c_char, c_int},
+    },
+};
 
 pub struct Initializer(NkInitializer);
 
+type RpcFn = unsafe extern "C" fn(
+    ctx: NkContext,
+    logger: NkLogger,
+    db: NkDb,
+    nk: NkModule,
+    payload: NkString,
+    outpayload: *mut *mut c_char,
+    outerror: *mut *mut c_char,
+) -> c_int;
+
 impl Initializer {
-    // pub fn register_rpc(&self, id: String, f: extern "C" fn(&Context, &Logger, &Db, &NakamaModule, )) -> Result<(), String>
-    // {
-    //     let mut out_err = MaybeUninit::uninit();
+    pub fn register_rpc<S>(&self, id: S, f: RpcFn) -> Result<(), String> where S: AsRef<str> {
+        let mut out_err = MaybeUninit::uninit();
 
-    //     let res = {
-    //         let id_str = id.as_ref();
-    //         let id_nk_string = str_as_nk_string(id_str);
-    //         let out_err_ptr = out_err.as_mut_ptr();
-
-    //         let register_rpc = self.0.registerrpc.unwrap();
-
-    //         unsafe {
-    //             register_rpc(self.0.ptr, id_nk_string, Some(f), out_err_ptr)
-    //         }
-    //     };
-
-    //     Ok(())
-    // }
+        unsafe {
+            if self.0.registerrpc.unwrap()(
+                self.0.ptr,
+                str_as_nk_string(id.as_ref()),
+                Some(f),
+                out_err.as_mut_ptr(),
+            ) == 0
+            {
+                Ok(())
+            } else {
+                Err(CStr::from_ptr(*out_err.as_ptr())
+                    .to_str()
+                    .unwrap()
+                    .to_owned())
+            }
+        }
+    }
 
     // RegisterRpc(id string, fn func(ctx context.Context, logger Logger, db *sql.DB, nk NakamaModule, payload string) (string, error)) error
     // RegisterBeforeRt(id string, fn func(ctx context.Context, logger Logger, db *sql.DB, nk NakamaModule, envelope *rtapi.Envelope) (*rtapi.Envelope, error)) error
@@ -167,8 +189,8 @@ impl Initializer {
     // RegisterEventSessionEnd(fn func(ctx context.Context, logger Logger, evt *api.Event)) error
 }
 
-impl From<&NkInitializer> for Initializer {
-    fn from(initializer: &NkInitializer) -> Self {
-        Self(*initializer)
+impl From<NkInitializer> for Initializer {
+    fn from(initializer: NkInitializer) -> Self {
+        Self(initializer)
     }
 }

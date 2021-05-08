@@ -7,7 +7,7 @@ pub struct Logger(NkLogger);
 
 impl Logger {
     /// Log a message at DEBUG level.
-    pub fn debug<S>(&mut self, s: S)
+    pub fn debug<S>(&self, s: S)
     where
         S: AsRef<str>,
     {
@@ -21,7 +21,7 @@ impl Logger {
     }
 
     /// Log a message at ERROR level.
-    pub fn error<S>(&mut self, s: S)
+    pub fn error<S>(&self, s: S)
     where
         S: AsRef<str>,
     {
@@ -40,7 +40,7 @@ impl Logger {
     }
 
     /// Log a message at INFO level.
-    pub fn info<S>(&mut self, s: S)
+    pub fn info<S>(&self, s: S)
     where
         S: AsRef<str>,
     {
@@ -54,7 +54,7 @@ impl Logger {
     }
 
     /// Log a message at WARN level.
-    pub fn warn<S>(&mut self, s: S)
+    pub fn warn<S>(&self, s: S)
     where
         S: AsRef<str>,
     {
@@ -85,8 +85,8 @@ impl Logger {
     }
 }
 
-impl From<&NkLogger> for Logger {
-    fn from(logger: &NkLogger) -> Self {
-        Self(*logger)
+impl From<NkLogger> for Logger {
+    fn from(logger: NkLogger) -> Self {
+        Self(logger)
     }
 }

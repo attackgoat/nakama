@@ -50,8 +50,8 @@ impl Context {
     }
 }
 
-impl From<&NkContext> for Context {
-    fn from(ctx: &NkContext) -> Self {
-        Self(*ctx)
+impl From<NkContext> for Context {
+    fn from(ctx: NkContext) -> Self {
+        Self(ctx)
     }
 }

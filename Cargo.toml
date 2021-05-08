@@ -12,4 +12,5 @@ description = "Rust library for multiplayer game servers using Nakama"
 
 [dependencies]
 libc = "0.2"
+nakama-derive = { path = "../nakama-derive" }
 nakama-sys = { path = "../nakama-sys" }

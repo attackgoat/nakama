@@ -1,7 +1,12 @@
+#![allow(unused_imports)]
+
 pub mod prelude {
-    pub use super::{
-        nakama, Context, Data, Db, Dispatcher, Init, Initializer, Join, Logger, Match,
-        NakamaModule, Presence, State,
+    pub use {
+        super::{
+            Context, Data, Db, Dispatcher, Init, Initializer, Join, Logger, Match, NakamaModule,
+            Presence, State,
+        },
+        nakama_derive::*,
     };
 }
 
@@ -13,9 +18,8 @@ mod context;
 mod data;
 mod db;
 mod dispatch;
-mod init;
+mod initializer;
 mod logger;
-mod macros;
 mod nakama_mod;
 mod presence;
 mod state;
@@ -25,10 +29,15 @@ pub use self::{
     data::Data,
     db::Db,
     dispatch::Dispatcher,
-    init::Initializer,
+    initializer::Initializer,
     logger::Logger,
-    macros::Init,
     nakama_mod::NakamaModule,
     presence::Presence,
     state::{Join, Match, State},
 };
+
+pub struct Init {
+    pub label: String,
+    pub rate: usize,
+    pub state: State,
+}
